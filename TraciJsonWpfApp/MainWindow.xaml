@@ -28,7 +28,20 @@
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
 
+        <StackPanel Grid.ColumnSpan="5" Background="#FF8383E2" Orientation="Horizontal">
+            <Button Content="File" Margin="5,0,10,0"/>
+            <Button Content="View" Margin="0,0,10,0"/>
+            <Button Content="Help" Margin="0,0,10,0"/>
+        </StackPanel>
+
+        <TabControl Name="documentTabControl" Grid.Row="1" Grid.ColumnSpan="5" Grid.RowSpan="6" Background="#FFD6C8E4">
+            <TabItem Name="tab1" Header="document1" >
+
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
