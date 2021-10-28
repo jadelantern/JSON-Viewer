@@ -24,7 +24,16 @@ namespace TraciJsonWpfApp
         public MainWindow()
         {
             InitializeComponent();
-            tab1.Content = new RichTextBox();
+            OpenFile(@"C:\Users\natel\Google Drive\[i Development\C#\Mentor\Thomas and Nate\testOne.txt");
+        }
+
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (var file in files)
+            {
+                OpenFile(file);
+            }
         }
 
         public void OpenFile(string filepath)
@@ -36,9 +45,11 @@ namespace TraciJsonWpfApp
             TabItem tab = new TabItem();
             tab.Header = fileName;
             RichTextBox richTextBox = new RichTextBox();
+            richTextBox.Selection.Text = fileContents;
 
             tab.Content = richTextBox;
             documentTabControl.Items.Add(tab);
+            documentTabControl.SelectedIndex = documentTabControl.Items.Count - 1;
         }
 
         public bool IsFileOpen(string filepath)
@@ -59,6 +70,32 @@ namespace TraciJsonWpfApp
                 }
             }
             return null;
+        }
+        public TabItem GetTabByHeader(string header)
+        {
+            foreach (TabItem tab in documentTabControl.Items)
+            {
+                if (tab.Header.ToString().ToLower() == header.ToLower())
+                {
+                    return tab;
+                }
+            }
+            return null;
+        }
+
+        public TabItem GetOpenedTab()
+        {
+            return (TabItem)documentTabControl.SelectedItem;
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                var tab = GetOpenedTab();
+                var rtb = (RichTextBox)tab.Content;
+                MessageBox.Show(rtb.Selection.Text);
+            }
         }
     }
 }
