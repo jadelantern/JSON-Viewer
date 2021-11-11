@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TraciJsonWpfApp.Extentions;
 
 namespace TraciJsonWpfApp
 {
@@ -35,7 +36,6 @@ namespace TraciJsonWpfApp
                 OpenFile(file);
             }
         }
-
         public void OpenFile(string filepath)
         {
             var fileInfo = new FileInfo(filepath);
@@ -45,11 +45,34 @@ namespace TraciJsonWpfApp
             TabItem tab = new TabItem();
             tab.Header = fileName;
             RichTextBox richTextBox = new RichTextBox();
+            richTextBox.TextChanged += RichTextBox_TextChanged;
             richTextBox.Selection.Text = fileContents;
 
             tab.Content = richTextBox;
             documentTabControl.Items.Add(tab);
             documentTabControl.SelectedIndex = documentTabControl.Items.Count - 1;
+        }
+
+        private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var rtb = (RichTextBox)e.OriginalSource; //casting** 
+            string text = rtb.GetText();
+            bool isValid = text.IsValidJSON();
+            UpdateJsonLabel(isValid);
+        }
+
+        private void UpdateJsonLabel(bool isJSONValid)
+        {
+            if (isJSONValid)
+            {
+                jsonValidLabel.Text = "JSON Valid: True";
+                jsonValidLabel.Background = new SolidColorBrush(Color.FromRgb(149,241,149));
+            }
+            else
+            {
+                jsonValidLabel.Text = "JSON Valid: False";
+                jsonValidLabel.Background = new SolidColorBrush(Color.FromRgb(251,10,10));
+            }
         }
 
         public bool IsFileOpen(string filepath)
@@ -96,6 +119,11 @@ namespace TraciJsonWpfApp
                 var rtb = (RichTextBox)tab.Content;
                 MessageBox.Show(rtb.Selection.Text);
             }
+        }
+
+        private void closeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

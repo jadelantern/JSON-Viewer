@@ -34,9 +34,12 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.ColumnSpan="5" Background="#FF8383E2" Orientation="Horizontal" AllowDrop="True">
-            <Button Content="File" Margin="5,0,10,0"/>
-            <Button Content="View" Margin="0,0,10,0"/>
-            <Button Content="Help" Margin="0,0,10,0"/>
+            <Button Name="fileButton" Content="File" Margin="5,0,10,0"/>
+            <Button Name="viewButton" Content="View" Margin="0,0,10,0"/>
+            <Button Name="closeButton" Content="Close" Margin="0,0,10,0" Click="closeButton_Click"/>
+            <Button Name="helpButton" Content="Help"/>
+            <Rectangle Width="3" Fill="White" VerticalAlignment="Stretch" Margin="10,8"/>
+            <TextBlock x:Name="jsonValidLabel" Text="JSON Valid: " VerticalAlignment="Center" Background="#FF95FB95"/>
         </StackPanel>
 
         <TabControl Name="documentTabControl" Grid.Row="1" Grid.ColumnSpan="5" Grid.RowSpan="6" Background="#FFD6C8E4" AllowDrop="True">
