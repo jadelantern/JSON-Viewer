@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Folding;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,13 +46,32 @@ namespace TraciJsonWpfApp
 
             TabItem tab = new TabItem();
             tab.Header = fileName;
-            RichTextBox richTextBox = new RichTextBox();
+            TextEditor avalonTextEditor = new TextEditor();
+            avalonTextEditor.TextChanged += AvalonTextEditor_TextChanged;
+            avalonTextEditor.Text = fileContents;
+            avalonTextEditor.ShowLineNumbers = true;
+            avalonTextEditor.Options.
+
+            var fold = FoldingManager.Install(avalonTextEditor.TextArea);
+            fold.CreateFolding(40, 60);
+            
+
+            /*RichTextBox richTextBox = new RichTextBox();
             richTextBox.TextChanged += RichTextBox_TextChanged;
             richTextBox.Selection.Text = fileContents;
-
             tab.Content = richTextBox;
+*/
+            tab.Content = avalonTextEditor;
             documentTabControl.Items.Add(tab);
             documentTabControl.SelectedIndex = documentTabControl.Items.Count - 1;
+        }
+
+        private void AvalonTextEditor_TextChanged(object sender, EventArgs e)
+        {
+            var avalonTxtEd = (TextEditor)sender; //casting** 
+            string text = avalonTxtEd.Text;
+            bool isValid = text.IsValidJSON();
+            UpdateJsonLabel(isValid);
         }
 
         private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
