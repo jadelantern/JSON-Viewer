@@ -46,11 +46,8 @@ namespace TraciJsonWpfApp
 
             TabItem tab = new TabItem();
             tab.Header = fileName;
-            TextEditor avalonTextEditor = new TextEditor();
-            avalonTextEditor.TextChanged += AvalonTextEditor_TextChanged;
+            TextEditor avalonTextEditor = CreateTextEditor();
             avalonTextEditor.Text = fileContents;
-            avalonTextEditor.ShowLineNumbers = true;
-            avalonTextEditor.Options.
 
             var fold = FoldingManager.Install(avalonTextEditor.TextArea);
             fold.CreateFolding(40, 60);
@@ -64,6 +61,18 @@ namespace TraciJsonWpfApp
             tab.Content = avalonTextEditor;
             documentTabControl.Items.Add(tab);
             documentTabControl.SelectedIndex = documentTabControl.Items.Count - 1;
+        }
+
+        public TextEditor CreateTextEditor()
+        {
+            TextEditor avalonTextEditor = new TextEditor();
+            avalonTextEditor.TextChanged += AvalonTextEditor_TextChanged;
+            avalonTextEditor.FontFamily = new FontFamily("Arial");
+            avalonTextEditor.FontSize = 15;
+            avalonTextEditor.ShowLineNumbers = true;
+            avalonTextEditor.Options.HighlightCurrentLine = true;
+
+            return avalonTextEditor;
         }
 
         private void AvalonTextEditor_TextChanged(object sender, EventArgs e)
