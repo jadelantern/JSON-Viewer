@@ -1,5 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Folding;
+using MaterialDesignThemes.Wpf;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,34 +32,43 @@ namespace TraciJsonWpfApp
             OpenFile(@"C:\Users\natel\Google Drive\[i Development\C#\Mentor\Thomas and Nate\testOne.txt");
         }
 
-        private void Window_Drop(object sender, DragEventArgs e)
+        private async void Window_Drop(object sender, DragEventArgs e)
         {
             var files = (string[])e.Data.GetData(DataFormats.FileDrop);
             foreach (var file in files)
             {
-                OpenFile(file);
+                await OpenFile(file);
             }
         }
-        public void OpenFile(string filepath)
+        public async Task OpenFile(string filepath)
         {
+            if (IsFileOpen(filepath))
+            {
+                MessageBox.Show("");
+                int index = GetTabIndex(filepath);
+                documentTabControl.SelectedIndex = index;
+                return;
+            }
+
             var fileInfo = new FileInfo(filepath);
             string fileName = fileInfo.Name;
             string fileContents = File.ReadAllText(filepath);
 
-            TabItem tab = new TabItem();
+            JsonTab tab = new JsonTab();
             tab.Header = fileName;
+            tab.filepath = filepath;
             TextEditor avalonTextEditor = CreateTextEditor();
             avalonTextEditor.Text = fileContents;
-
             var fold = FoldingManager.Install(avalonTextEditor.TextArea);
-            fold.CreateFolding(40, 60);
-            
 
-            /*RichTextBox richTextBox = new RichTextBox();
-            richTextBox.TextChanged += RichTextBox_TextChanged;
-            richTextBox.Selection.Text = fileContents;
-            tab.Content = richTextBox;
-*/
+            BracketPairFinder bpFinder = new BracketPairFinder(fileContents, '{', '}');
+            var brackets = await bpFinder.GetBracketPairsAsync();
+            foreach (var bracket in brackets)
+            {
+                fold.CreateFolding(bracket.Key, bracket.Value);
+            }
+
+
             tab.Content = avalonTextEditor;
             documentTabControl.Items.Add(tab);
             documentTabControl.SelectedIndex = documentTabControl.Items.Count - 1;
@@ -72,6 +83,9 @@ namespace TraciJsonWpfApp
             avalonTextEditor.ShowLineNumbers = true;
             avalonTextEditor.Options.HighlightCurrentLine = true;
 
+            var highlight =  ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance.GetDefinition("Json");
+            avalonTextEditor.SyntaxHighlighting = highlight;
+
             return avalonTextEditor;
         }
 
@@ -79,14 +93,6 @@ namespace TraciJsonWpfApp
         {
             var avalonTxtEd = (TextEditor)sender; //casting** 
             string text = avalonTxtEd.Text;
-            bool isValid = text.IsValidJSON();
-            UpdateJsonLabel(isValid);
-        }
-
-        private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var rtb = (RichTextBox)e.OriginalSource; //casting** 
-            string text = rtb.GetText();
             bool isValid = text.IsValidJSON();
             UpdateJsonLabel(isValid);
         }
@@ -110,35 +116,31 @@ namespace TraciJsonWpfApp
             return GetTabByPath(filepath) != null;
         }
 
-        public TabItem GetTabByPath(string filepath)
+        public JsonTab GetTabByPath(string filepath)
         {
-            var fileInfo = new FileInfo(filepath);
-            string fileName = fileInfo.Name;
+            int index = GetTabIndex(filepath);
+            if (index != -1)
+                return (JsonTab) documentTabControl.Items.GetItemAt(index);
 
-            foreach (TabItem tab in documentTabControl.Items)
-            {
-                if (tab.Header.ToString().ToLower() == fileName.ToLower())
-                {
-                    return tab;
-                }
-            }
             return null;
         }
-        public TabItem GetTabByHeader(string header)
+        
+
+        public JsonTab GetOpenedTab()
         {
-            foreach (TabItem tab in documentTabControl.Items)
-            {
-                if (tab.Header.ToString().ToLower() == header.ToLower())
-                {
-                    return tab;
-                }
-            }
-            return null;
+            return (JsonTab)documentTabControl.SelectedItem;
         }
 
-        public TabItem GetOpenedTab()
+        public int GetTabIndex(string filepath)
         {
-            return (TabItem)documentTabControl.SelectedItem;
+            for (int i = 0; i < documentTabControl.Items.Count; i++)
+            {
+                if (((JsonTab)documentTabControl.Items.GetItemAt(i)).filepath.ToLower() == filepath.ToLower())
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -154,6 +156,25 @@ namespace TraciJsonWpfApp
         private void closeButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void fileButton_Click(object sender, RoutedEventArgs e)
+        {
+            fileMenu.IsSubmenuOpen = !fileMenu.IsSubmenuOpen;
+        }
+
+        private async void browseFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Multiselect = true;
+            ofd.Filter = "Text files (*.txt;*.json)|*.txt;*.json|All files (*.*)|*.*";
+            if (ofd.ShowDialog()==true)
+            {
+                foreach (var filename in ofd.FileNames)
+                {
+                    await OpenFile(filename);
+                }
+            }
         }
     }
 }
