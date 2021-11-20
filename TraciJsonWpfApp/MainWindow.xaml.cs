@@ -176,5 +176,30 @@ namespace TraciJsonWpfApp
                 }
             }
         }
+
+        private void documentTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (documentTabControl.SelectedIndex == -1)
+                return;
+
+            string json = GetJsonFromTab(documentTabControl.SelectedIndex);
+            if (json == null)
+                return;
+
+            UpdateJsonLabel(json.IsValidJSON());
+        }
+
+        public string GetJsonFromTab(int tabIndex)
+        {
+            JsonTab tab = (JsonTab)documentTabControl.Items.GetItemAt(tabIndex);
+            if (tab == null)
+                return null;
+
+            TextEditor jsonEditor = (TextEditor)tab.Content;
+            if (jsonEditor == null)
+                return null;
+
+            return jsonEditor.Text;
+        }
     }
 }

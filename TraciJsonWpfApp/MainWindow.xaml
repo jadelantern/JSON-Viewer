@@ -50,7 +50,7 @@
         </StackPanel>
         
 
-        <TabControl Name="documentTabControl" Grid.Row="1" Grid.ColumnSpan="5" Grid.RowSpan="6" Background="#FFD6C8E4" AllowDrop="True">
+        <TabControl Name="documentTabControl" Grid.Row="1" Grid.ColumnSpan="5" Grid.RowSpan="6" Background="#FFD6C8E4" AllowDrop="True" SelectionChanged="documentTabControl_SelectionChanged">
            
         </TabControl>
     </Grid>
